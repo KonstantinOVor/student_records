@@ -1,6 +1,7 @@
 package com.example.student_records.repository.impl;
 
 import com.example.student_records.entity.Student;
+import com.example.student_records.events.AddStudentsEvent;
 import com.example.student_records.events.StudentAddedEvent;
 import com.example.student_records.events.StudentDeletedEvent;
 import com.example.student_records.exeption.StudentNotFoundException;
@@ -18,7 +19,7 @@ import java.util.*;
 @ShellComponent
 @RequiredArgsConstructor
 public class StudentRepositoryImpl implements StudentRepository {
-   private final Set<Student> studentSet = new HashSet<>();
+   protected Set<Student> studentSet = new HashSet<>();
    private final ApplicationEventPublisher eventPublisher;
 
     @ShellMethod(key = "add", value = "Add new student")

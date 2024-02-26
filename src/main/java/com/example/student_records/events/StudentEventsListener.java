@@ -14,6 +14,20 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StudentEventsListener {
 
+    @EventListener(AddStudentsEvent.class)
+    public void onApplicationEvent(AddStudentsEvent event) {
+        StudentRepository studentRepository = event.getStudentRepository();
+        addInitialStudents(studentRepository);
+    }
+
+    private void addInitialStudents(StudentRepository studentRepository) {
+        studentRepository.addStudent("Иванов", "Иван", 20);
+        studentRepository.addStudent("Петров", "Петр", 21);
+        studentRepository.addStudent("Сидоров", "Сидор", 22);
+        studentRepository.addStudent("Васильев", "Василий", 23);
+        studentRepository.addStudent("Антонов", "Антон", 24);
+    }
+
     @EventListener(StudentAddedEvent.class)
     public void onTheAddEvent(StudentAddedEvent event) {
         if (event.getStudent() instanceof Student) {
@@ -35,13 +49,4 @@ public class StudentEventsListener {
         }
     }
 
-    @EventListener(ApplicationStartedEvent.class)
-    public void onApplicationStartup(ApplicationStartedEvent event) {
-        StudentRepository studentRepository = event.getStudentRepository();
-        studentRepository.addStudent("Иванов", "Иван", 20);
-        studentRepository.addStudent("Петров", "Петр", 21);
-        studentRepository.addStudent("Сидоров", "Сидор", 22);
-        studentRepository.addStudent("Васильев", "Василий", 23);
-        studentRepository.addStudent("Антонов", "Антон", 24);
-    }
 }
