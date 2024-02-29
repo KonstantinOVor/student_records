@@ -1,7 +1,6 @@
 package com.example.student_records.repository.impl;
 
 import com.example.student_records.entity.Student;
-import com.example.student_records.events.AddStudentsEvent;
 import com.example.student_records.events.StudentAddedEvent;
 import com.example.student_records.events.StudentDeletedEvent;
 import com.example.student_records.exeption.StudentNotFoundException;
@@ -19,7 +18,7 @@ import java.util.*;
 @ShellComponent
 @RequiredArgsConstructor
 public class StudentRepositoryImpl implements StudentRepository {
-   protected Set<Student> studentSet = new HashSet<>();
+   protected List<Student> studentList = new ArrayList<>();
    private final ApplicationEventPublisher eventPublisher;
 
     @ShellMethod(key = "add", value = "Add new student")
@@ -31,23 +30,24 @@ public class StudentRepositoryImpl implements StudentRepository {
                 .firstName(firstName)
                 .age(age)
                 .build();
-        studentSet.add(student);
+        studentList.add(student);
         eventPublisher.publishEvent(new StudentAddedEvent(this, student));
     }
 
     @ShellMethod(key = "del", value = "Delete student by id")
     @Override
     public void deleteStudent(Long id) {
-        boolean studentFound = false;
-        for (Student student : studentSet) {
+        Student studentToRemove = null;
+        for (Student student : studentList) {
             if (student.getId().equals(id)) {
-                studentSet.remove(student);
-                eventPublisher.publishEvent(new StudentDeletedEvent(this, student));
-                studentFound = true;
+                studentToRemove = student;
                 break;
             }
         }
-        if (!studentFound) {
+        if (studentToRemove != null) {
+            studentList.remove(studentToRemove);
+            eventPublisher.publishEvent(new StudentDeletedEvent(this, studentToRemove));
+        } else {
             throw new StudentNotFoundException(ProgramMessages.STUDENT_NOT_FOUND.getDescription());
         }
     }
@@ -55,8 +55,8 @@ public class StudentRepositoryImpl implements StudentRepository {
     @ShellMethod(key = "show", value = "Show all students")
     @Override
     public void getAllStudents() {
-        if (!studentSet.isEmpty()) {
-            for (Student student : studentSet) {
+        if (!studentList.isEmpty()) {
+            for (Student student : studentList) {
                 System.out.println(student.toString());
             }
         } else {
@@ -67,14 +67,14 @@ public class StudentRepositoryImpl implements StudentRepository {
     @ShellMethod(key = "cl", value = "Clear all students")
     @Override
     public void clearAllStudents() {
-        if (!studentSet.isEmpty()) {
-            studentSet.clear();
+        if (!studentList.isEmpty()) {
+            studentList.clear();
             System.out.println(ProgramMessages.CLEAR_ALL_STUDENTS.getDescription());
         } else {
             throw new StudentNotFoundException(ProgramMessages.LIST_IS_EMPTY.getDescription());
         }
     }
     private Long generateId() {
-        return studentSet.size() + 1L;
+        return studentList.size() + 1L;
     }
 }
